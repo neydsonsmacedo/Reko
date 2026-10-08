@@ -1,12 +1,12 @@
 from encryption_service import EncryptionService
+from interface import RekoApp
+from tkinter import *
 
-if __name__ == '__main__':
-    service = EncryptionService()
+def main():
+    root = Tk()
+    app = RekoApp(root)
+    root.mainloop()
 
-    service.save_password('Netflix', 'neydson_macedo@hotmail.com', '010205')
-    
-    result = service.get_password('Netflix')
-    if result:
-        print(f"Service found: {result['username']} -> {result['password']}")
-    else:
-        print("Service not found or no records available.")
+
+if __name__ == "__main__":
+    main()
