@@ -44,16 +44,14 @@ class RekoApp:
 
         # Button frame at bottom
         btn_frame = ttk.Frame(self.frm)
-        btn_frame.grid(row=1, column=0, pady=10, sticky=W)
+        btn_frame.grid(row=1, column=0, pady=10, sticky=E)
 
         # Refresh button
         ttk.Button(btn_frame, text="Atualizar", command=self.refresh_services).grid(row=0, column=0, padx=5)
 
         # Service data storage
         self.service_data = {}
-        self.rows = {}           # {service_name: frame}
         self.details_panels = {} # {service_name: frame}
-        self.detail_visible = {} # {service_name: bool}
         self.show_password_btns = {}  # {service_name: Button}
         self.password_labels = {}      # {service_name: Label}
 
@@ -67,9 +65,7 @@ class RekoApp:
             widget.destroy()
 
         self.service_data = {}
-        self.rows = {}
         self.details_panels = {}
-        self.detail_visible = {}
         self.show_password_btns = {}
         self.password_labels = {}
 
@@ -92,22 +88,8 @@ class RekoApp:
                     'username': username,
                     'encrypted_password': encrypted_password
                 }
-                self.detail_visible[service_name] = False
 
-                # --- Row: service name + Show button ---
-                row_frame = ttk.Frame(self.service_frame_inner, relief=RAISED, borderwidth=1)
-                row_frame.pack(fill=X, pady=2)
-                self.rows[service_name] = row_frame
-
-                # Service name label
-                ttk.Label(row_frame, text=service_name, width=20).pack(side=LEFT, padx=5)
-
-                # Show/Hide button - initially "Show"
-                btn = ttk.Button(row_frame, text="Show", width=8,
-                                 command=lambda sn=service_name: self.toggle_detail(sn))
-                btn.pack(side=RIGHT, padx=5)
-
-                # --- Detail panel: hidden by default ---
+                # --- Detail panel (always visible) ---
                 detail_panel = ttk.Frame(self.service_frame_inner, relief=RAISED, borderwidth=1)
 
                 # Service title as heading
@@ -124,16 +106,16 @@ class RekoApp:
                 password_frame = ttk.Frame(detail_panel)
                 password_frame.pack(anchor=W, fill=X, padx=5, pady=5)
                 ttk.Label(password_frame, text="Senha: ", anchor=W).pack(side=LEFT, padx=5)
-                pwd_label = ttk.Label(password_frame, text="••••••", anchor=W)
+                pwd_label = ttk.Label(password_frame, text="••••••", anchor=W, width=30)
                 pwd_label.pack(side=LEFT, fill=X, expand=True)
-                show_btn = ttk.Button(password_frame, text="Show",
+                show_btn = ttk.Button(password_frame, text="Show", width=6,
                                       command=lambda sn=service_name: self.show_password(sn))
                 show_btn.pack(side=RIGHT, padx=5)
 
-                # Hide the detail panel initially
-                detail_panel.pack_forget()
+                # Show the detail panel (always visible)
+                detail_panel.pack(fill=X, pady=2, padx=10)
 
-                # Pack the detail panel at the end
+                # Store widget references
                 self.details_panels[service_name] = detail_panel
                 self.show_password_btns[service_name] = show_btn
                 self.password_labels[service_name] = pwd_label
@@ -141,26 +123,6 @@ class RekoApp:
         # Update scroll region
         self.service_frame_inner.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
-    def toggle_detail(self, service_name):
-        """Show/hide the detail panel for a service."""
-        if service_name not in self.service_data:
-            return
-
-        visible = self.detail_visible[service_name]
-        detail_panel = self.details_panels[service_name]
-        row_frame = self.rows[service_name]
-
-        if visible:
-            # Hide the detail panel
-            detail_panel.pack_forget()
-            row_frame.pack(fill=X, pady=2)
-            self.detail_visible[service_name] = False
-        else:
-            # Hide the row, show the detail panel
-            row_frame.pack_forget()
-            detail_panel.pack(fill=X, pady=2, padx=10)
-            self.detail_visible[service_name] = True
 
     def show_password(self, service_name):
         """Reveal the password for the service."""
